@@ -477,8 +477,8 @@ fn test_basic_args_linter_top_level() {
     let address = SuiAddress::random_for_testing_only();
 
     let value = json!(value_raw);
-    // Encode as hex string
-    let addr = json!(format!("0x{:02x}", address));
+    // Encode as bech32 string
+    let addr = json!(format!("{}", address));
 
     // They have to be ordered
     let args = vec![value, addr]
@@ -513,8 +513,8 @@ fn test_basic_args_linter_top_level() {
     let address = SuiAddress::random_for_testing_only();
 
     let object_id = json!(format!("0x{:02x}", object_id_raw));
-    // Encode as hex string
-    let addr = json!(format!("0x{:02x}", address));
+    // Encode as Bech32 string
+    let addr = json!(format!("{}", address));
 
     // They have to be ordered
     let args = vec![object_id, addr]

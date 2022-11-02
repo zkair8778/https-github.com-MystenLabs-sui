@@ -98,8 +98,8 @@ fn test_object_id_conversions() {}
 
 #[test]
 fn test_object_id_display() {
-    let hex = "ca843279e3427144cead5e4d5999a3d05999a3d0";
-    let upper_hex = "CA843279E3427144CEAD5E4D5999A3D05999A3D0";
+    let hex = "262a986f28aff64a1c9982a8b329259fcfff981eaff8e374712d7273d56204cc";
+    let upper_hex = "262A986F28AFF64A1C9982A8B329259FCFFF981EAFF8E374712D7273D56204CC";
 
     let id = ObjectID::from_hex(hex).unwrap();
 
@@ -112,9 +112,14 @@ fn test_object_id_display() {
 
 #[test]
 fn test_object_id_str_lossless() {
-    let id = ObjectID::from_hex("0000000000c0f1f95c5b1c5f0eda533eff269000").unwrap();
-    let id_empty = ObjectID::from_hex("0000000000000000000000000000000000000000").unwrap();
-    let id_one = ObjectID::from_hex("0000000000000000000000000000000000000001").unwrap();
+    let id = ObjectID::from_hex("0000000000000000000000000000000000c0f1f95c5b1c5f0eda533eff269000")
+        .unwrap();
+    let id_empty =
+        ObjectID::from_hex("0000000000000000000000000000000000000000000000000000000000000000")
+            .unwrap();
+    let id_one =
+        ObjectID::from_hex("0000000000000000000000000000000000000000000000000000000000000001")
+            .unwrap();
 
     assert_eq!(id.short_str_lossless(), "c0f1f95c5b1c5f0eda533eff269000",);
     assert_eq!(id_empty.short_str_lossless(), "0",);
@@ -124,7 +129,7 @@ fn test_object_id_str_lossless() {
 #[test]
 fn test_object_id_from_hex_literal() {
     let hex_literal = "0x1";
-    let hex = "0000000000000000000000000000000000000001";
+    let hex = "0000000000000000000000000000000000000000000000000000000000000001";
 
     let obj_id_from_literal = ObjectID::from_hex_literal(hex_literal).unwrap();
     let obj_id = ObjectID::from_hex(hex).unwrap();
@@ -135,8 +140,10 @@ fn test_object_id_from_hex_literal() {
     // Missing '0x'
     ObjectID::from_hex_literal(hex).unwrap_err();
     // Too long
-    ObjectID::from_hex_literal("0x10000000000000000000000000000000000000000000000000000000001")
-        .unwrap_err();
+    ObjectID::from_hex_literal(
+        "0x10000000000000000000000000000000000000000000000000000000000000001",
+    )
+    .unwrap_err();
 }
 
 #[test]
@@ -163,7 +170,7 @@ fn test_object_id_deserialize_from_json_value() {
 #[test]
 fn test_object_id_serde_json() {
     let hex = "0xca843279e342714123456784cead5e4d5999a3d0";
-    let json_hex = "\"0xca843279e342714123456784cead5e4d5999a3d0\"";
+    let json_hex = "\"0x000000000000000000000000ca843279e342714123456784cead5e4d5999a3d0\"";
 
     let obj_id = ObjectID::from_hex_literal(hex).unwrap();
 
@@ -186,22 +193,24 @@ fn test_object_id_serde_not_human_readable() {
 #[test]
 fn test_object_id_serde_with_expected_value() {
     let object_id_vec = vec![
-        71, 183, 32, 230, 10, 187, 253, 56, 195, 142, 30, 23, 38, 201, 102, 0, 130, 240, 199, 52,
+        11, 218, 2, 32, 219, 253, 205, 35, 90, 126, 63, 223, 176, 40, 87, 148, 168, 147, 138, 215,
+        140, 241, 118, 209, 188, 86, 35, 72, 1, 128, 150, 59,
     ];
     let object_id = ObjectID::try_from(object_id_vec.clone()).unwrap();
     let json_serialized = serde_json::to_string(&object_id).unwrap();
     let bcs_serialized = bcs::to_bytes(&object_id).unwrap();
 
-    let expected_json_address = "\"0x47b720e60abbfd38c38e1e1726c9660082f0c734\"";
-    assert_eq!(expected_json_address, json_serialized);
+    let expected_json_object_id =
+        "\"0x0bda0220dbfdcd235a7e3fdfb0285794a8938ad78cf176d1bc5623480180963b\"";
+    assert_eq!(expected_json_object_id, json_serialized);
     assert_eq!(object_id_vec, bcs_serialized);
 }
 
 #[test]
 fn test_object_id_zero_padding() {
     let hex = "0x2";
-    let long_hex = "0x0000000000000000000000000000000000000002";
-    let long_hex_alt = "0000000000000000000000000000000000000002";
+    let long_hex = "0x0000000000000000000000000000000000000000000000000000000000000002";
+    let long_hex_alt = "0000000000000000000000000000000000000000000000000000000000000002";
     let obj_id_1 = ObjectID::from_hex_literal(hex).unwrap();
     let obj_id_2 = ObjectID::from_hex_literal(long_hex).unwrap();
     let obj_id_3 = ObjectID::from_hex(long_hex_alt).unwrap();
@@ -218,15 +227,9 @@ fn test_object_id_zero_padding() {
 
 #[test]
 fn test_address_display() {
-    let hex = "ca843279e3427144cead5e4d5999a3d05999a3d0";
-    let upper_hex = "CA843279E3427144CEAD5E4D5999A3D05999A3D0";
-
-    let id = SuiAddress::from_str(hex).unwrap();
-    assert_eq!(format!("{:?}", id), format!("0x{hex}"));
-    assert_eq!(format!("{:X}", id), upper_hex);
-    assert_eq!(format!("{:x}", id), hex);
-    assert_eq!(format!("{:#x}", id), format!("0x{hex}"));
-    assert_eq!(format!("{:#X}", id), format!("0x{upper_hex}"));
+    let bech32_address = "sui1sau0w2w6j38k2tqtx0t87w9uaackz4gq5qagletswavsnc3n59ksjtk7gf";
+    let id = SuiAddress::from_str(bech32_address).unwrap();
+    assert_eq!(format!("{:?}", id), bech32_address);
 }
 
 #[test]
@@ -245,7 +248,10 @@ fn test_address_serde_not_human_readable() {
 fn test_address_serde_human_readable() {
     let address = SuiAddress::random_for_testing_only();
     let serialized = serde_json::to_string(&address).unwrap();
-    assert_eq!(format!("\"0x{}\"", hex::encode(address)), serialized);
+    assert_eq!(
+        format!("\"{}\"", Bech32::encode(address.as_ref())),
+        serialized
+    );
     let deserialized: SuiAddress = serde_json::from_str(&serialized).unwrap();
     assert_eq!(deserialized, address);
 }
@@ -253,13 +259,15 @@ fn test_address_serde_human_readable() {
 #[test]
 fn test_address_serde_with_expected_value() {
     let address_vec = vec![
-        42, 202, 201, 60, 233, 75, 103, 251, 224, 56, 148, 252, 58, 57, 61, 244, 92, 124, 211, 191,
+        11, 218, 2, 32, 219, 253, 205, 35, 90, 126, 63, 223, 176, 40, 87, 148, 168, 147, 138, 215,
+        140, 241, 118, 209, 188, 86, 35, 72, 1, 128, 150, 59,
     ];
     let address = SuiAddress::try_from(address_vec.clone()).unwrap();
     let json_serialized = serde_json::to_string(&address).unwrap();
     let bcs_serialized = bcs::to_bytes(&address).unwrap();
 
-    let expected_json_address = "\"0x2acac93ce94b67fbe03894fc3a393df45c7cd3bf\"";
+    let expected_json_address =
+        "\"sui1p0dqygxmlhxjxkn78l0mq2zhjj5f8zkh3nchd5du2c35sqvqjcasfvxkej\"";
     assert_eq!(expected_json_address, json_serialized);
     assert_eq!(address_vec, bcs_serialized);
 }
@@ -342,7 +350,7 @@ fn test_move_package_size_for_gas_metering() {
 
 // A sample address in hex generated by the current address derivation algorithm.
 #[cfg(test)]
-const SAMPLE_ADDRESS: &str = "32866f0109fa1ba911392dcd2d4260f1d8243133";
+const SAMPLE_ADDRESS: &str = "sui1x2rx7qgflgd6jyfe9hxj6snq78vzgvfnzm65v74lvsv8k0h0542szv269t";
 
 // Derive a sample address and public key tuple from KeyPair bytes.
 fn derive_sample_address() -> (SuiAddress, AccountKeyPair) {
@@ -359,11 +367,10 @@ fn derive_sample_address() -> (SuiAddress, AccountKeyPair) {
 // Required to capture address derivation algorithm updates that break some tests and deployments.
 #[test]
 fn test_address_backwards_compatibility() {
-    use hex;
     let (address, _) = derive_sample_address();
     assert_eq!(
         address.to_vec(),
-        hex::decode(SAMPLE_ADDRESS).expect("Decoding failed"),
+        Bech32::decode(SAMPLE_ADDRESS).expect("Decoding failed"),
         "If this test broke, then the algorithm for deriving addresses from public keys has \
                changed. If this was intentional, please compute a new sample address in hex format \
                from `derive_sample_address` and update the SAMPLE_ADDRESS const above with the new \

@@ -17,7 +17,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Number, Value as JsonValue};
 use std::collections::VecDeque;
 use std::fmt::{Debug, Formatter};
-use sui_types::base_types::{decode_bytes_hex, ObjectID, SuiAddress};
+use std::str::FromStr;
+use sui_types::base_types::{ObjectID, SuiAddress};
 use sui_types::move_package::MovePackage;
 use sui_verifier::entry_points_verifier::{
     is_tx_context, RESOLVED_ASCII_STR, RESOLVED_STD_OPTION, RESOLVED_SUI_ID, RESOLVED_UTF8_STR,
@@ -198,14 +199,10 @@ impl SuiJsonValue {
                 )
             }
 
-            (JsonValue::String(s), MoveTypeLayout::Address) => {
-                let s = s.trim().to_lowercase();
-                if !s.starts_with(HEX_PREFIX) {
-                    bail!("Address hex string must start with 0x.",);
-                }
-                let r: SuiAddress = decode_bytes_hex(&s)?;
-                MoveValue::Address(r.into())
-            }
+            (JsonValue::String(s), MoveTypeLayout::Address) => match SuiAddress::from_str(s) {
+                Ok(a) => MoveValue::Address(a.into()),
+                Err(e) => bail!("Invalid address {e} {s}"),
+            },
             _ => bail!("Unexpected arg {val} for expected type {ty}"),
         })
     }
