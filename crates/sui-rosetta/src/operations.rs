@@ -11,7 +11,7 @@ use serde_with::DisplayFromStr;
 
 use sui_types::base_types::{ObjectID, ObjectRef, SuiAddress};
 use sui_types::coin::{PAY_JOIN_FUNC_NAME, PAY_MODULE_NAME, PAY_SPLIT_VEC_FUNC_NAME};
-use sui_types::event::Event;
+use sui_types::event::{BalanceChangeType, Event};
 use sui_types::gas_coin::GAS;
 use sui_types::messages::{
     CallArg, ExecutionStatus, MoveCall, ObjectArg, Pay, PayAllSui, PaySui, SingleTransactionKind,
@@ -115,11 +115,18 @@ impl Operation {
             owner: Owner::AddressOwner(owner),
             coin_type,
             amount,
+            change_type,
             ..
         } = event
         {
             // We only interested in SUI coins and account addresses
             if coin_type == &GAS::type_().to_string() {
+                let status = if change_type == &BalanceChangeType::Gas {
+                    // We always charge gas
+                    Some(OperationStatus::Success)
+                } else {
+                    status
+                };
                 operations.push(Operation {
                     operation_identifier: counter.next_idx().into(),
                     related_operations: vec![],
