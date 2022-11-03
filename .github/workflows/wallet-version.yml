@@ -37,6 +37,7 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v4
         with:
+          base: main
           title: "[wallet-ext] Auto-version Extension Wallet"
           body: |
             This is an automated pull request that increments the wallet version.
