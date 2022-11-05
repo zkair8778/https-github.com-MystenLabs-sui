@@ -1178,7 +1178,7 @@ where
         address: SuiAddress,
     ) -> Result<Vec<(ObjectRef, u64)>, anyhow::Error> {
         let mut coins = Vec::new();
-        for info in self.store.get_owner_objects(Owner::AddressOwner(address))? {
+        for info in self.store.get_owner_objects(address)? {
             if info.type_.is_gas_coin() {
                 let object = self.get_object_internal(&info.object_id).await?;
                 let gas_coin = GasCoin::try_from(object.data.try_as_move().unwrap())?;
@@ -1787,7 +1787,7 @@ where
     ) -> Result<Vec<SuiObjectInfo>, anyhow::Error> {
         let refs: Vec<SuiObjectInfo> = self
             .store
-            .get_owner_objects(Owner::AddressOwner(account_addr))?
+            .get_owner_objects(account_addr)?
             .into_iter()
             .map(SuiObjectInfo::from)
             .collect();
@@ -1796,15 +1796,9 @@ where
 
     async fn get_objects_owned_by_object(
         &self,
-        object_id: ObjectID,
+        _object_id: ObjectID,
     ) -> Result<Vec<SuiObjectInfo>, anyhow::Error> {
-        let refs: Vec<SuiObjectInfo> = self
-            .store
-            .get_owner_objects(Owner::ObjectOwner(object_id.into()))?
-            .into_iter()
-            .map(SuiObjectInfo::from)
-            .collect();
-        Ok(refs)
+        todo!()
     }
 
     fn get_total_transaction_number(&self) -> Result<u64, anyhow::Error> {
