@@ -1,11 +1,11 @@
 .tabsfooter {
-    @apply flex justify-between text-gray-500 capitalize items-center p-0 mt-2 md:mt-0 text-sm;
+    @apply mt-2 flex items-center justify-between p-0 text-sm capitalize text-gray-500 md:mt-0;
 }
 
 .tabsfooter a {
-    @apply text-gray-700 font-semibold;
+    @apply font-semibold text-gray-700;
 }
 
 .stats {
-    @apply ml-auto w-full text-right flex gap-2 justify-end items-center;
+    @apply ml-auto flex w-full items-center justify-end gap-2 text-right;
 }

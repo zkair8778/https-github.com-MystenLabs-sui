@@ -257,13 +257,13 @@ function GasAmount({ amount }: { amount: bigint | number }) {
     );
 
     return (
-        <div className="flex items-center gap-1 h-full">
-            <div className="text-sui-grey-90 flex items-baseline gap-0.5">
+        <div className="flex h-full items-center gap-1">
+            <div className="flex items-baseline gap-0.5 text-sui-grey-90">
                 <Text variant="body">{formattedAmount}</Text>
                 <Text variant="subtitleSmall">{symbol}</Text>
             </div>
             <Text variant="bodySmall">
-                <div className="text-sui-grey-65 flex items-center">
+                <div className="flex items-center text-sui-grey-65">
                     (
                     <div className="flex items-baseline gap-0.5">
                         <div>{amount.toLocaleString()}</div>

@@ -60,15 +60,15 @@ export function PageHeader({ title, subtitle, type, status }: PageHeaderProps) {
     const Icon = TYPE_TO_ICON[type];
     return (
         <div data-testid="pageheader">
-            <div className="text-sui-grey-85 flex items-center gap-2 mb-3">
+            <div className="mb-3 flex items-center gap-2 text-sui-grey-85">
                 <Icon className="text-sui-steel" />
                 <Heading variant="heading4" weight="semibold">
                     {type}
                 </Heading>
             </div>
-            <div className="flex flex-col lg:flex-row gap-2">
-                <div className="flex items-start gap-2 min-w-0">
-                    <div className="break-words min-w-0">
+            <div className="flex flex-col gap-2 lg:flex-row">
+                <div className="flex min-w-0 items-start gap-2">
+                    <div className="min-w-0 break-words">
                         <Heading as="h2" variant="heading2" weight="bold" mono>
                             {title}
                         </Heading>
@@ -79,7 +79,7 @@ export function PageHeader({ title, subtitle, type, status }: PageHeaderProps) {
                             navigator.clipboard.writeText(title);
                             toast.success('Copied!');
                         }}
-                        className="bg-transparent border-none cursor-pointer p-0 m-0 text-sui-steel flex justify-center items-center -mt-0.5"
+                        className="m-0 -mt-0.5 flex cursor-pointer items-center justify-center border-none bg-transparent p-0 text-sui-steel"
                     >
                         <span className="sr-only">Copy</span>
                         <CopyIcon aria-hidden="true" />
@@ -93,7 +93,7 @@ export function PageHeader({ title, subtitle, type, status }: PageHeaderProps) {
                 )}
             </div>
             {subtitle && (
-                <div className="text-sui-grey-75 mt-2 break-words">
+                <div className="mt-2 break-words text-sui-grey-75">
                     <Heading variant="heading4" weight="semibold">
                         {subtitle}
                     </Heading>

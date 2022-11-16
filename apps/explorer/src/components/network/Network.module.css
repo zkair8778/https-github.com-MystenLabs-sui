@@ -1,25 +1,25 @@
 .hamburger {
-    @apply stroke-white stroke-[2.5px] cursor-pointer sm:hidden block;
+    @apply block cursor-pointer stroke-white stroke-[2.5px] sm:hidden;
 }
 
 .networkbox {
-    @apply text-sm cursor-pointer text-offwhite bg-transparent hover:bg-search-fill leading-8  w-[10rem] mx-[2vw] text-center hidden sm:block;
+    @apply mx-[2vw] hidden w-[10rem] cursor-pointer bg-transparent text-center  text-sm leading-8 text-offwhite hover:bg-search-fill sm:block;
 }
 
 .opennetworkbox {
-    @apply fixed top-0 right-0 w-screen h-screen text-center z-50 text-offwhite;
+    @apply fixed top-0 right-0 z-50 h-screen w-screen text-center text-offwhite;
 }
 
 .closeicon {
-    @apply text-left pl-2 cursor-pointer w-[1rem];
+    @apply w-[1rem] cursor-pointer pl-2 text-left;
 }
 
 div.opennetworkdetails {
-    @apply fixed w-full sm:w-[35vw] lg:w-[25vw] right-0 top-0 h-full bg-offblack opacity-100 z-50;
+    @apply fixed right-0 top-0 z-50 h-full w-full bg-offblack opacity-100 sm:w-[35vw] lg:w-[25vw];
 }
 
 div.detailsbg {
-    @apply fixed top-0 left-0 w-full h-full bg-gray-500 z-20 opacity-50;
+    @apply fixed top-0 left-0 z-20 h-full w-full bg-gray-500 opacity-50;
 }
 
 div.inactive {
@@ -32,11 +32,11 @@ div.active {
 
 .opennetworkdetails > div > div,
 .opennetworkdetails > div > input {
-    @apply p-2 my-2 w-[80vw] sm:w-[30vw] lg:w-[20vw] mx-auto rounded-lg;
+    @apply my-2 mx-auto w-[80vw] rounded-lg p-2 sm:w-[30vw] lg:w-[20vw];
 }
 
 .opennetworkdetails > div > input {
-    @apply bg-offblack text-offwhite border-green-500 border-solid font-mono;
+    @apply border-solid border-green-500 bg-offblack font-mono text-offwhite;
 }
 
 .remove {

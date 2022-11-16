@@ -19,8 +19,8 @@ export function StatAmount({
     date,
 }: StatAmountProps) {
     return (
-        <div className="flex flex-col justify-start text-sui-grey-75 gap-2">
-            <div className="text-sui-grey-100 flex flex-col items-baseline gap-2.5">
+        <div className="flex flex-col justify-start gap-2 text-sui-grey-75">
+            <div className="flex flex-col items-baseline gap-2.5 text-sui-grey-100">
                 {date && (
                     <div className="text-sui-grey-75">
                         <Text variant="bodySmall" weight="semibold">

@@ -1,5 +1,5 @@
 header {
-    @apply grid grid-cols-12 py-[2vh] mx-[5vw] bg-headerNav;
+    @apply mx-[5vw] grid grid-cols-12 bg-headerNav py-[2vh];
 }
 
 .suititle {
@@ -11,5 +11,5 @@ header {
 }
 
 .networkselect {
-    @apply col-span-2 sm:col-span-4 justify-self-end;
+    @apply col-span-2 justify-self-end sm:col-span-4;
 }

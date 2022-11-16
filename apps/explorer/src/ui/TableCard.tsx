@@ -76,7 +76,7 @@ export function TableCard({ refetching, data, columns }: TableCardProps) {
                 refetching && 'opacity-50'
             )}
         >
-            <table className="text-left min-w-max border-collapse w-full border-solid border-sui-grey-45 border-0 border-b">
+            <table className="w-full min-w-max border-collapse border-0 border-b border-solid border-sui-grey-45 text-left">
                 <thead>
                     {table.getHeaderGroups().map((headerGroup: any) => (
                         <tr key={headerGroup.id}>
@@ -85,7 +85,7 @@ export function TableCard({ refetching, data, columns }: TableCardProps) {
                                     key={header.id}
                                     colSpan={header.colSpan}
                                     scope="col"
-                                    className="text-sui-grey-75 h-[30px] px-1 text-left font-semibold uppercase text-subtitle"
+                                    className="h-[30px] px-1 text-left text-subtitle font-semibold uppercase text-sui-grey-75"
                                 >
                                     {header.isPlaceholder
                                         ? null
@@ -104,7 +104,7 @@ export function TableCard({ refetching, data, columns }: TableCardProps) {
                             {row.getVisibleCells().map((cell: any) => (
                                 <td
                                     key={cell.id}
-                                    className="text-sui-grey-75 h-[30px] px-1 group-hover:text-sui-grey-90 group-hover:bg-sui-grey-40 text-body group-hover:first:rounded-l group-hover:last:rounded-r"
+                                    className="h-[30px] px-1 text-body text-sui-grey-75 group-hover:bg-sui-grey-40 group-hover:text-sui-grey-90 group-hover:first:rounded-l group-hover:last:rounded-r"
                                 >
                                     {flexRender(
                                         cell.column.columnDef.cell,

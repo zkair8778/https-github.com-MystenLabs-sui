@@ -3,16 +3,16 @@
 }
 
 .txaddress h4 {
-    @apply m-0 font-semibold text-heading4;
+    @apply m-0 text-heading4 font-semibold;
 }
 
 .label {
     border-bottom: 1px solid #f0f1f2;
-    @apply text-sui-grey-100 font-[500] text-lg  mt-0 mb-2 border-b-[1px] border-[#f0f1f2] md:border-0;
+    @apply mt-0 mb-2 border-b-[1px]  border-[#f0f1f2] text-lg font-[500] text-sui-grey-100 md:border-0;
 }
 
 .oneaddress {
-    @apply flex gap-[8px] items-center text-[14px] leading-[90%] w-[99%];
+    @apply flex w-[99%] items-center gap-[8px] text-[14px] leading-[90%];
 }
 
 .oneaddress a {
@@ -44,11 +44,11 @@
 }
 
 .suiamount {
-    @apply text-heading6 font-semibold ml-[24px] text-sui-grey-100;
+    @apply ml-[24px] text-heading6 font-semibold text-sui-grey-100;
 }
 
 .suilabel {
-    @apply text-bodySmall pt-[2px] text-sui-grey-80;
+    @apply pt-[2px] text-bodySmall text-sui-grey-80;
 }
 
 .doneiconwline {
@@ -92,13 +92,13 @@
 }
 
 .amountbox > :first-child {
-    @apply font-semibold text-sui-grey-100 text-heading4 mb-[10px];
+    @apply mb-[10px] text-heading4 font-semibold text-sui-grey-100;
 }
 
 .amountbox > :nth-child(2) {
-    @apply font-bold text-sui-grey-90 text-[24px] h-[19px] leading-[80%] mt-0 mb-[40px];
+    @apply mt-0 mb-[40px] h-[19px] text-[24px] font-bold leading-[80%] text-sui-grey-90;
 }
 
 .amountbox > :nth-child(2) sup {
-    @apply font-medium text-sui-grey-80 text-[13px] h-[13px] leading-[100%] ml-[4px];
+    @apply ml-[4px] h-[13px] text-[13px] font-medium leading-[100%] text-sui-grey-80;
 }
