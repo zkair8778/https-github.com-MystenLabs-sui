@@ -315,6 +315,12 @@ impl Core {
             .with_label_values(&[&header.epoch.to_string()])
             .inc();
 
+        // If we already have a certificate for this round, no need to
+        // re-create the certificate, we read and return it.
+        if let Some(certificate) = certificate_store.read_by_index(name.clone(), header.round)? {
+            return Ok(certificate);
+        }
+
         // Reset the votes aggregator and sign our own header.
         let mut votes_aggregator = VotesAggregator::new();
         let vote = Vote::new(&header, &name, &signature_service).await;
@@ -413,6 +419,8 @@ impl Core {
         }?;
 
         // Broadcast the certificate.
+        debug!("Broadcast certificate {:?}", certificate);
+
         let epoch = certificate.epoch();
         let round = certificate.header.round;
         let created_at = certificate.header.metadata.created_at;
