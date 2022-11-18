@@ -14,6 +14,7 @@ import {
   SuiExecuteTransactionResponse,
   TransactionEffects,
 } from '../types';
+import * as GasEstimationUtils from '../utils/gas-estimation';
 import { SignaturePubkeyPair, Signer } from './signer';
 import { RpcTxnDataSerializer } from './txn-data-serializers/rpc-txn-data-serializer';
 import {
@@ -139,47 +140,71 @@ export abstract class SignerWithProvider implements Signer {
    * @param tx the transaction as SignableTransaction or string (in base64) that will dry run
    * @returns The transaction effects
    */
-  async dryRunTransaction(tx: SignableTransaction | string | Base64DataBuffer): Promise<TransactionEffects> {
+  async dryRunTransaction(
+    tx: SignableTransaction | string | Base64DataBuffer
+  ): Promise<TransactionEffects> {
     const address = await this.getAddress();
     let dryRunTxBytes: string;
     if (typeof tx === 'string') {
       dryRunTxBytes = tx;
-    } else if (tx instanceof Base64DataBuffer){
+    } else if (tx instanceof Base64DataBuffer) {
       dryRunTxBytes = tx.toString();
-    }else{
+    } else {
       switch (tx.kind) {
         case 'bytes':
           dryRunTxBytes = new Base64DataBuffer(tx.data).toString();
           break;
         case 'mergeCoin':
-          dryRunTxBytes = (await this.serializer.newMergeCoin(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newMergeCoin(address, tx.data)
+          ).toString();
           break;
         case 'moveCall':
-          dryRunTxBytes = (await this.serializer.newMoveCall(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newMoveCall(address, tx.data)
+          ).toString();
           break;
         case 'pay':
-          dryRunTxBytes = (await this.serializer.newPay(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newPay(address, tx.data)
+          ).toString();
           break;
         case 'payAllSui':
-          dryRunTxBytes = (await this.serializer.newPayAllSui(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newPayAllSui(address, tx.data)
+          ).toString();
           break;
         case 'paySui':
-          dryRunTxBytes = (await this.serializer.newPaySui(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newPaySui(address, tx.data)
+          ).toString();
           break;
         case 'publish':
-          dryRunTxBytes = (await this.serializer.newPublish(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newPublish(address, tx.data)
+          ).toString();
           break;
         case 'splitCoin':
-          dryRunTxBytes = (await this.serializer.newSplitCoin(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newSplitCoin(address, tx.data)
+          ).toString();
           break;
         case 'transferObject':
-          dryRunTxBytes = (await this.serializer.newTransferObject(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newTransferObject(address, tx.data)
+          ).toString();
           break;
         case 'transferSui':
-          dryRunTxBytes = (await this.serializer.newTransferSui(address, tx.data)).toString();
+          dryRunTxBytes = (
+            await this.serializer.newTransferSui(address, tx.data)
+          ).toString();
           break;
         default:
-          throw new Error(`Error, unknown transaction kind ${(tx as any).kind}. Can't dry run transaction.`);
+          throw new Error(
+            `Error, unknown transaction kind ${
+              (tx as any).kind
+            }. Can't dry run transaction.`
+          );
       }
     }
     return this.provider.dryRunTransaction(dryRunTxBytes);
@@ -332,12 +357,79 @@ export abstract class SignerWithProvider implements Signer {
    * @returns total gas cost estimation
    * @throws whens fails to estimate the gas cost
    */
-  async getGasCostEstimation(...args: Parameters<SignerWithProvider['dryRunTransaction']>) {
+  async getGasCostEstimation(
+    ...args: Parameters<SignerWithProvider['dryRunTransaction']>
+  ) {
     const txEffects = await this.dryRunTransaction(...args);
     const gasEstimation = getTotalGasUsed(txEffects);
     if (typeof gasEstimation === 'undefined') {
       throw new Error('Failed to estimate the gas cost from transaction');
     }
     return gasEstimation;
+  }
+
+  /**
+   * Calculates the suggested gas budget and gas estimation of a transaction, using {@link SignerWithProvider.dryRunTransaction}.
+   * In case there is an error, or dryRun is not supported by the environment it uses a default gas budget and const estimation based
+   * on the transaction kind.
+   * @param txKind The transaction kind
+   * @param txCreator A function that accepts a guessed gas budget and returns the transaction to dry run
+   * @param maxGasCoinBalance The maximum amount of the balance of an individual SUI coin owned by sender. There is no way to use multiple coins for gas at the moment so the sender has to own one with enough balance.
+   * @param budgetParams Any other parameters required to guess the gasBudget before dry running the transaction
+   * @returns An object the includes
+   * suggestedGasBudget - in case of error or insufficient gas this defaults to the 'guessed' budget but without taking into account the maxGasCoinBalance and available balance
+   * gasCostEstimation - in case of error or insufficient gas this defaults to the 'guessed' budget
+   * insufficientGas
+   * isSuccess
+   */
+  async getGasCostEstimationAndSuggestedBudget<
+    T extends GasEstimationUtils.TxKind
+  >(
+    txKind: T,
+    txCreator: (
+      gasBudgetGuess: number
+    ) => Promise<Parameters<SignerWithProvider['dryRunTransaction']>>,
+    maxGasCoinBalance: bigint,
+    ...budgetParams: GasEstimationUtils.GasBudgetGuessParams<T>
+  ) {
+    let gasCostEstimation: number;
+    let suggestedGasBudget: number;
+    let insufficientGas: boolean;
+    let isSuccess: boolean;
+    const gasBudget = GasEstimationUtils.getGasBudgetGuess(
+      txKind,
+      maxGasCoinBalance,
+      true,
+      budgetParams
+    );
+    try {
+      const dryRunResult = await this.dryRunTransaction(
+        ...(await txCreator(gasBudget))
+      );
+      isSuccess = dryRunResult.status.status === 'success';
+      gasCostEstimation =
+        (isSuccess ? getTotalGasUsed(dryRunResult) : null) ?? gasBudget;
+      suggestedGasBudget = isSuccess
+        ? dryRunResult.gasUsed.computationCost +
+          dryRunResult.gasUsed.storageCost
+        : GasEstimationUtils.getGasBudgetGuess(
+            txKind,
+            null,
+            false,
+            budgetParams
+          );
+      insufficientGas = dryRunResult.status.error === 'InsufficientGas';
+    } catch (e) {
+      suggestedGasBudget = gasBudget;
+      gasCostEstimation = gasBudget;
+      insufficientGas = false;
+      isSuccess = false;
+    }
+    return {
+      suggestedGasBudget,
+      gasCostEstimation,
+      insufficientGas,
+      isSuccess,
+    };
   }
 }
