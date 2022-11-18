@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import TransferNFTForm from './TransferNFTForm';
+import { useGasEstimation } from './useGasEstimation';
 import { createValidationSchema } from './validation';
 import PageTitle from '_app/shared/page-title';
 import NFTDisplayCard from '_components/nft-display';
@@ -46,20 +47,23 @@ function TransferNFTCard({ objectId }: TransferProps) {
         [address, objectId]
     );
     const navigate = useNavigate();
+
+    const [gasBudget, , isLoading] = useGasEstimation(objectId);
     const onHandleSubmit = useCallback(
         async (
             { to }: FormValues,
             { resetForm }: FormikHelpers<FormValues>
         ) => {
-            if (objectId === null) {
+            if (objectId === null || !gasBudget) {
                 return;
             }
             setSendError(null);
             try {
                 const resp = await dispatch(
                     transferNFT({
-                        recipientAddress: to,
-                        nftId: objectId,
+                        recipient: to,
+                        objectId,
+                        gasBudget,
                     })
                 ).unwrap();
                 resetForm();
@@ -75,7 +79,7 @@ function TransferNFTCard({ objectId }: TransferProps) {
                 setSendError((e as SerializedError).message || null);
             }
         },
-        [dispatch, navigate, objectId]
+        [dispatch, navigate, objectId, gasBudget]
     );
     const handleOnClearSubmitError = useCallback(() => {
         setSendError(null);
@@ -99,8 +103,9 @@ function TransferNFTCard({ objectId }: TransferProps) {
                     onSubmit={onHandleSubmit}
                 >
                     <TransferNFTForm
-                        nftID={objectId}
                         submitError={sendError}
+                        gasBudget={gasBudget}
+                        isGasEstimationLoading={isLoading}
                         onClearSubmitError={handleOnClearSubmitError}
                     />
                 </Formik>
