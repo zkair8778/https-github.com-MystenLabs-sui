@@ -311,6 +311,7 @@ async fn test_request_vote_missing_parents() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
@@ -383,7 +384,7 @@ async fn test_request_vote_missing_parents() {
         let tx_narwhal_round_updates = tx_narwhal_round_updates.clone();
         tokio::task::spawn(async move {
             tokio::time::sleep(Duration::from_millis(100)).await;
-            let _ = tx_narwhal_round_updates.send(3);
+            let _ = tx_narwhal_round_updates.send(100);
         });
     }
     let mut request = anemo::Request::new(RequestVoteRequest {
@@ -478,6 +479,7 @@ async fn test_request_vote_missing_batches() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
@@ -597,6 +599,7 @@ async fn test_request_vote_already_voted() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
@@ -749,6 +752,7 @@ async fn test_fetch_certificates_handler() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
@@ -911,6 +915,7 @@ async fn test_process_payload_availability_success() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
@@ -1055,6 +1060,7 @@ async fn test_process_payload_availability_when_failures() {
         payload_store: payload_store.clone(),
         vote_digest_store: crate::common::create_test_vote_store(),
         rx_narwhal_round_updates,
+        gc_depth: 50,
         metrics: metrics.clone(),
         request_vote_inflight: Arc::new(DashSet::new()),
     };
