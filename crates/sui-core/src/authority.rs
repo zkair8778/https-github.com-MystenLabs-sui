@@ -2,20 +2,6 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-use std::hash::Hash;
-use std::ops::Deref;
-use std::path::PathBuf;
-use std::str::FromStr;
-use std::time::Duration;
-use std::{
-    collections::{HashMap, VecDeque},
-    pin::Pin,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    },
-};
-
 use anyhow::anyhow;
 use arc_swap::{ArcSwap, Guard};
 use chrono::prelude::*;
@@ -30,6 +16,19 @@ use parking_lot::RwLock;
 use prometheus::{
     exponential_buckets, register_histogram_with_registry, register_int_counter_with_registry,
     register_int_gauge_with_registry, Histogram, IntCounter, IntGauge, Registry,
+};
+use std::hash::Hash;
+use std::ops::Deref;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::time::Duration;
+use std::{
+    collections::{HashMap, VecDeque},
+    pin::Pin,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
 };
 use tap::TapFallible;
 use tokio::sync::mpsc::{unbounded_channel, UnboundedReceiver};
@@ -104,7 +103,7 @@ use crate::{
     transaction_manager::TransactionManager,
     transaction_streamer::TransactionStreamer,
 };
-use narwhal_types::ConsensusOutput;
+use narwhal_types::Certificate;
 use sui_types::gas::GasCostSummary;
 
 use self::authority_store::ObjectKey;
@@ -2203,7 +2202,7 @@ impl AuthorityState {
     /// This function returns unit error and is responsible for emitting log messages for internal errors
     pub(crate) fn verify_consensus_transaction(
         &self,
-        consensus_output: &ConsensusOutput,
+        consensus_output: &Certificate,
         transaction: SequencedConsensusTransaction,
     ) -> Result<VerifiedSequencedConsensusTransaction, ()> {
         let _timer = self
@@ -2229,30 +2228,30 @@ impl AuthorityState {
                     .map_err(|err| {
                         warn!(
                             "Ignoring malformed transaction (failed to verify) from {}: {:?}",
-                            transaction.consensus_output.certificate.header.author, err
+                            transaction.consensus_output.header.author, err
                         );
                     })?;
             }
             ConsensusTransactionKind::CheckpointSignature(data) => {
-                if AuthorityName::from(&consensus_output.certificate.origin())
+                if AuthorityName::from(&consensus_output.origin())
                     != data.summary.auth_signature.authority
                 {
-                    warn!("CheckpointSignature authority {} does not match narwhal certificate source {}", data.summary.auth_signature.authority, consensus_output.certificate.origin() );
+                    warn!("CheckpointSignature authority {} does not match narwhal certificate source {}", data.summary.auth_signature.authority, consensus_output.origin() );
                     return Err(());
                 }
                 data.verify(&self.committee.load()).map_err(|err|{
                     warn!(
                         "Ignoring malformed checkpoint signature (failed to verify) from {}, sequence {}: {:?}",
-                        transaction.consensus_output.certificate.header.author, data.summary.summary.sequence_number, err
+                        transaction.consensus_output.header.author, data.summary.summary.sequence_number, err
                     );
                 })?;
             }
             ConsensusTransactionKind::EndOfPublish(authority) => {
-                if &AuthorityName::from(&consensus_output.certificate.origin()) != authority {
+                if &AuthorityName::from(&consensus_output.origin()) != authority {
                     warn!(
                         "EndOfPublish authority {} does not match narwhal certificate source {}",
                         authority,
-                        consensus_output.certificate.origin()
+                        consensus_output.origin()
                     );
                     return Err(());
                 }
@@ -2266,7 +2265,7 @@ impl AuthorityState {
     /// Errors returned by this call are treated as critical errors and cause node to panic.
     pub(crate) async fn handle_consensus_transaction<C: CheckpointServiceNotify>(
         &self,
-        consensus_output: &ConsensusOutput,
+        consensus_output: &Certificate,
         transaction: VerifiedSequencedConsensusTransaction,
         checkpoint_service: &Arc<C>,
     ) -> SuiResult {
@@ -2286,7 +2285,7 @@ impl AuthorityState {
         // self.close_all_certs() to close it.
         match &transaction.kind {
             ConsensusTransactionKind::UserTransaction(certificate) => {
-                let authority = (&consensus_output.certificate.header.author).into();
+                let authority = (&consensus_output.header.author).into();
                 if self.database.sent_end_of_publish(&authority)? {
                     // This can not happen with valid authority
                     // With some edge cases narwhal might sometimes resend previously seen certificate after EndOfPublish
