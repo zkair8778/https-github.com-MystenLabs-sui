@@ -1,9 +1,9 @@
 // Copyright (c) Mysten Labs, Inc.
 // SPDX-License-Identifier: Apache-2.0
 mod errors;
-mod iter;
-mod keys;
-mod values;
+pub(crate) mod iter;
+pub(crate) mod keys;
+pub(crate) mod values;
 
 use crate::{
     metrics::{DBMetrics, RocksDBPerfContext, SamplingInterval},
@@ -17,7 +17,12 @@ use rocksdb::{
 };
 use serde::{de::DeserializeOwned, Serialize};
 use std::{
-    borrow::Borrow, collections::BTreeMap, env, marker::PhantomData, path::Path, sync::Arc,
+    borrow::Borrow,
+    collections::BTreeMap,
+    env,
+    marker::PhantomData,
+    path::{Path, PathBuf},
+    sync::Arc,
     time::Duration,
 };
 use tap::TapFallible;
@@ -1069,4 +1074,9 @@ impl DBMapTableConfigMap {
     pub fn to_map(&self) -> BTreeMap<String, DBOptions> {
         self.0.clone()
     }
+}
+
+pub enum RocksDBAccessType {
+    Primary,
+    Secondary(Option<PathBuf>),
 }
