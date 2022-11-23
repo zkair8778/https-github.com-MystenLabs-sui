@@ -33,11 +33,12 @@ use tracing::warn;
 
 use sui_json::SuiJsonValue;
 use sui_types::base_types::{
-    DynamicFieldInfo, ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, SuiAddress,
-    TransactionDigest, TransactionEffectsDigest,
+    ObjectDigest, ObjectID, ObjectInfo, ObjectRef, SequenceNumber, SuiAddress, TransactionDigest,
+    TransactionEffectsDigest,
 };
 use sui_types::committee::EpochId;
 use sui_types::crypto::{AuthorityStrongQuorumSignInfo, SignableBytes, Signature};
+use sui_types::dynamic_field::DynamicFieldInfo;
 use sui_types::error::SuiError;
 use sui_types::event::{BalanceChangeType, Event, EventID};
 use sui_types::event::{EventEnvelope, EventType};
