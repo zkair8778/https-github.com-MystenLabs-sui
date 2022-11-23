@@ -136,16 +136,20 @@ impl RpcReadApiServer for GatewayReadApiImpl {
         Ok(self.client.get_objects_owned_by_address(address).await?)
     }
 
-    async fn get_dynamic_fields(&self, object_id: ObjectID) -> RpcResult<DynamicFieldPage> {
-        debug!("get_objects_own_by_object : {}", object_id);
-        Ok(DynamicFieldPage {
-            data: vec![],
-            next_cursor: None,
-        })
+    async fn get_dynamic_fields(&self, _parent_object_id: ObjectID) -> RpcResult<DynamicFieldPage> {
+        panic!("Not supported")
     }
 
     async fn get_object(&self, object_id: ObjectID) -> RpcResult<GetObjectDataResponse> {
         Ok(self.client.get_object(object_id).await?)
+    }
+
+    async fn get_dynamic_field_object(
+        &self,
+        _parent_object_id: ObjectID,
+        _name: String,
+    ) -> RpcResult<GetObjectDataResponse> {
+        panic!("Not supported")
     }
 
     async fn get_transaction(

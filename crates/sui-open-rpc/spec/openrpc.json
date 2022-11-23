@@ -573,6 +573,40 @@
       }
     },
     {
+      "name": "sui_getDynamicFieldObject",
+      "tags": [
+        {
+          "name": "Read API"
+        }
+      ],
+      "description": "Return the dynamic field object information for a specified object",
+      "params": [
+        {
+          "name": "parent_object_id",
+          "description": "the ID of the queried parent object",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/ObjectID"
+          }
+        },
+        {
+          "name": "name",
+          "description": "the Name of the dynamic field",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "result": {
+        "name": "GetObjectDataResponse",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/ObjectRead"
+        }
+      }
+    },
+    {
       "name": "sui_getDynamicFields",
       "tags": [
         {
@@ -582,8 +616,8 @@
       "description": "Return the list of objects owned by an object.",
       "params": [
         {
-          "name": "object_id",
-          "description": "the ID of the owner object",
+          "name": "parent_object_id",
+          "description": "the ID of the parent object",
           "required": true,
           "schema": {
             "$ref": "#/components/schemas/ObjectID"
@@ -2389,17 +2423,25 @@
           {
             "type": "string",
             "enum": [
-              "Object"
+              "DynamicObject"
             ]
           },
           {
             "type": "object",
             "required": [
-              "Field"
+              "DynamicField"
             ],
             "properties": {
-              "Field": {
-                "$ref": "#/components/schemas/ObjectID"
+              "DynamicField": {
+                "type": "object",
+                "required": [
+                  "wrappedObjectId"
+                ],
+                "properties": {
+                  "wrappedObjectId": {
+                    "$ref": "#/components/schemas/ObjectID"
+                  }
+                }
               }
             },
             "additionalProperties": false
