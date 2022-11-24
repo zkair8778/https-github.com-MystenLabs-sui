@@ -136,6 +136,14 @@ impl RpcReadApiServer for GatewayReadApiImpl {
         Ok(self.client.get_objects_owned_by_address(address).await?)
     }
 
+    async fn get_objects_owned_by_object(
+        &self,
+        object_id: ObjectID,
+    ) -> RpcResult<Vec<SuiObjectInfo>> {
+        debug!("get_objects_own_by_object : {}", object_id);
+        Ok(self.client.get_objects_owned_by_object(object_id).await?)
+    }
+
     async fn get_dynamic_fields(
         &self,
         _parent_object_id: ObjectID,
