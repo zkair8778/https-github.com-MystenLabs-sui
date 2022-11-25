@@ -103,7 +103,7 @@ use crate::{
     transaction_manager::TransactionManager,
     transaction_streamer::TransactionStreamer,
 };
-use narwhal_types::Certificate;
+
 use sui_types::gas::GasCostSummary;
 
 use self::authority_store::ObjectKey;
@@ -2202,7 +2202,6 @@ impl AuthorityState {
     /// This function returns unit error and is responsible for emitting log messages for internal errors
     pub(crate) fn verify_consensus_transaction(
         &self,
-        consensus_output: &Certificate,
         transaction: SequencedConsensusTransaction,
     ) -> Result<VerifiedSequencedConsensusTransaction, ()> {
         let _timer = self
@@ -2215,7 +2214,7 @@ impl AuthorityState {
             .expect("Storage error")
         {
             debug!(
-                consensus_index=?transaction.consensus_index,
+                consensus_index=?transaction.consensus_index.index.transaction_index,
                 tracking_id=?transaction.transaction.tracking_id,
                 "handle_consensus_transaction UserTransaction [skip]",
             );
@@ -2228,30 +2227,30 @@ impl AuthorityState {
                     .map_err(|err| {
                         warn!(
                             "Ignoring malformed transaction (failed to verify) from {}: {:?}",
-                            transaction.consensus_output.header.author, err
+                            transaction.certificate.header.author, err
                         );
                     })?;
             }
             ConsensusTransactionKind::CheckpointSignature(data) => {
-                if AuthorityName::from(&consensus_output.origin())
+                if AuthorityName::from(&transaction.certificate.origin())
                     != data.summary.auth_signature.authority
                 {
-                    warn!("CheckpointSignature authority {} does not match narwhal certificate source {}", data.summary.auth_signature.authority, consensus_output.origin() );
+                    warn!("CheckpointSignature authority {} does not match narwhal certificate source {}", data.summary.auth_signature.authority, transaction.certificate.origin() );
                     return Err(());
                 }
                 data.verify(&self.committee.load()).map_err(|err|{
                     warn!(
                         "Ignoring malformed checkpoint signature (failed to verify) from {}, sequence {}: {:?}",
-                        transaction.consensus_output.header.author, data.summary.summary.sequence_number, err
+                        transaction.certificate.header.author, data.summary.summary.sequence_number, err
                     );
                 })?;
             }
             ConsensusTransactionKind::EndOfPublish(authority) => {
-                if &AuthorityName::from(&consensus_output.origin()) != authority {
+                if &AuthorityName::from(&transaction.certificate.origin()) != authority {
                     warn!(
                         "EndOfPublish authority {} does not match narwhal certificate source {}",
                         authority,
-                        consensus_output.origin()
+                        transaction.certificate.origin()
                     );
                     return Err(());
                 }
@@ -2265,12 +2264,11 @@ impl AuthorityState {
     /// Errors returned by this call are treated as critical errors and cause node to panic.
     pub(crate) async fn handle_consensus_transaction<C: CheckpointServiceNotify>(
         &self,
-        consensus_output: &Certificate,
         transaction: VerifiedSequencedConsensusTransaction,
         checkpoint_service: &Arc<C>,
     ) -> SuiResult {
         let VerifiedSequencedConsensusTransaction(SequencedConsensusTransaction {
-            consensus_output: _consensus_output,
+            certificate: consensus_output,
             consensus_index,
             transaction,
         }) = transaction;
@@ -2299,7 +2297,6 @@ impl AuthorityState {
                 let certificate = VerifiedCertificate::new_unchecked(*certificate.clone());
 
                 debug!(
-                    ?consensus_index,
                     ?tracking_id,
                     tx_digest = ?certificate.digest(),
                     "handle_consensus_transaction UserTransaction",

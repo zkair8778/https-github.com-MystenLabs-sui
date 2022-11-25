@@ -1454,7 +1454,7 @@ impl<S: Eq + Debug + Serialize + for<'de> Deserialize<'de>> SuiDataStore<S> {
         let transaction_digest = *certificate.digest();
         let batch = batch.insert_batch(
             &self.epoch_tables().consensus_message_order,
-            [(consensus_index.index.clone(), transaction_digest)],
+            [(consensus_index.index, transaction_digest)],
         )?;
         let batch = batch.insert_batch(
             &self.epoch_tables().pending_certificates,
