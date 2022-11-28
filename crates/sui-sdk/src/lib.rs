@@ -348,12 +348,12 @@ impl QuorumDriver {
         tx: VerifiedTransaction,
         request_type: Option<ExecuteTransactionRequestType>,
     ) -> anyhow::Result<TransactionExecutionResult> {
-        let (tx_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
+        let (intent_msg_bytes, flag, signature, pub_key) = tx.to_network_data_for_execution();
         let request_type =
             request_type.unwrap_or(ExecuteTransactionRequestType::WaitForLocalExecution);
         let resp = TransactionExecutionApiClient::execute_transaction(
             &self.api.http,
-            tx_bytes,
+            intent_msg_bytes,
             flag,
             signature,
             pub_key,

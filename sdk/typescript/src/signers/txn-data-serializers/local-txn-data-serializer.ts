@@ -16,6 +16,7 @@ import {
   TransactionData,
   TypeTag,
   SuiObjectRef,
+  RpcApiVersion,
 } from '../../types';
 import {
   MoveCallTransaction,
@@ -36,6 +37,9 @@ import { CallArgSerializer } from './call-arg-serializer';
 import { TypeTagSerializer } from './type-tag-serializer';
 
 const TYPE_TAG = Array.from('TransactionData::').map((e) => e.charCodeAt(0));
+// TODO (joyqvq): Fetch chain_id and version from RPC.
+// This is currently hardcoded with [IntentVersion::V0 = 0, chain_id::Testing = 0, intent_scope::TransactionData = 0]
+const INTENT_BYTES = [0, 0, 0];
 
 export class LocalTxnDataSerializer implements TxnDataSerializer {
   /**
@@ -399,8 +403,13 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
       gasBudget: originalTx.data.gasBudget,
       sender: signerAddress,
     };
+    const version = await this.provider.getRpcApiVersion();
 
-    return await this.serializeTransactionData(txData);
+    if (shouldUseIntentSigning(version)) {
+      return await this.serializeIntentTransactionData(txData);
+    } else {
+      return await this.serializeTransactionData(txData);
+    }
   }
 
   /**
@@ -409,7 +418,7 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
   public async serializeTransactionData(
     tx: TransactionData,
     // TODO: derive the buffer size automatically
-    size: number = 8192
+    size: number = 8192,
   ): Promise<Base64DataBuffer> {
     const format = 'TransactionData';
 
@@ -417,6 +426,24 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
     const serialized = new Uint8Array(TYPE_TAG.length + dataBytes.length);
     serialized.set(TYPE_TAG);
     serialized.set(dataBytes, TYPE_TAG.length);
+    return new Base64DataBuffer(serialized);
+  }
+
+  /**
+   * Serialize `TransactionData` into an BCS encoded IntentMessage<TransactionData> bytes.
+   */
+  public async serializeIntentTransactionData(
+    tx: TransactionData,
+    size: number = 8192,
+  ): Promise<Base64DataBuffer> {
+    const format = 'TransactionData';
+    const dataBytes = bcs.ser(format, tx, size).toBytes();
+    const serialized = new Uint8Array(INTENT_BYTES.length + dataBytes.length);
+    
+    // First three bytes represent the intent bytes
+    serialized.set(INTENT_BYTES);
+    // Then appending the serialized transaction data
+    serialized.set(dataBytes, INTENT_BYTES.length);
     return new Base64DataBuffer(serialized);
   }
 
@@ -439,7 +466,8 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
   public async deserializeTransactionBytesToTransactionData(
     bytes: Base64DataBuffer
   ): Promise<TransactionData> {
-    return bcs.de('TransactionData', bytes.getData().slice(TYPE_TAG.length));
+    // remove the first three bytes representing the Intent in IntentMessage<TransactionData>
+    return bcs.de('TransactionData', bytes.getData().slice(INTENT_BYTES.length));
   }
 
   /**
@@ -532,4 +560,8 @@ export class LocalTxnDataSerializer implements TxnDataSerializer {
     }
     throw new Error(`Unsupported transaction type ${tx}`);
   }
+}
+
+export function shouldUseIntentSigning(version?: RpcApiVersion): boolean {
+  return version?.major === 0 && version?.minor >= 18;
 }

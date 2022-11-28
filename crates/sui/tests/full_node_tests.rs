@@ -1065,9 +1065,9 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     let tx_digest = txn.digest();
 
     // Test request with ExecuteTransactionRequestType::WaitForLocalExecution
-    let (tx_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
+    let (intent_msg_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
     let params = rpc_params![
-        tx_bytes,
+        intent_msg_bytes,
         flag,
         signature,
         pub_key,
@@ -1096,9 +1096,9 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
         .unwrap();
 
     // Test request with ExecuteTransactionRequestType::WaitForEffectsCert
-    let (tx_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
+    let (intent_msg_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
     let params = rpc_params![
-        tx_bytes,
+        intent_msg_bytes,
         flag,
         signature,
         pub_key,
@@ -1124,9 +1124,9 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     // Test request with ExecuteTransactionRequestType::WaitForTxCert
     let txn = txns.swap_remove(0);
     let tx_digest = txn.digest();
-    let (tx_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
+    let (intent_msg_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
     let params = rpc_params![
-        tx_bytes,
+        intent_msg_bytes,
         flag,
         signature,
         pub_key,
@@ -1146,9 +1146,9 @@ async fn test_full_node_transaction_orchestrator_rpc_ok() -> Result<(), anyhow::
     // Test request with ExecuteTransactionRequestType::ImmediateReturn
     let txn = txns.swap_remove(0);
     let tx_digest = txn.digest();
-    let (tx_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
+    let (intent_msg_bytes, flag, signature, pub_key) = txn.to_network_data_for_execution();
     let params = rpc_params![
-        tx_bytes,
+        intent_msg_bytes,
         flag,
         signature,
         pub_key,

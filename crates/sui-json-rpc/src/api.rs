@@ -39,7 +39,7 @@ pub trait RpcGatewayApi {
     #[method(name = "executeTransaction")]
     async fn execute_transaction(
         &self,
-        /// transaction data bytes, as base-64 encoded string
+        /// intent message containing intent and transaction data, as base-64 encoded string
         tx_bytes: Base64,
         /// Flag of the signature scheme that is used.
         sig_scheme: SignatureScheme,
@@ -479,7 +479,7 @@ pub trait TransactionExecutionApi {
     #[method(name = "executeTransaction")]
     async fn execute_transaction(
         &self,
-        /// transaction data bytes, as base-64 encoded string
+        /// intent message containing intent and transaction data, as base-64 encoded string
         tx_bytes: Base64,
         /// Flag of the signature scheme that is used.
         sig_scheme: SignatureScheme,
@@ -502,7 +502,7 @@ pub trait EstimatorApi {
     #[method(name = "estimateTransactionComputationCost")]
     async fn estimate_transaction_computation_cost(
         &self,
-        /// transaction data bytes, as base-64 encoded string
+        /// intent message containing intent and transaction data, as base-64 encoded string
         tx_bytes: Base64,
         computation_gas_unit_price: Option<u64>,
         storage_gas_unit_price: Option<u64>,
