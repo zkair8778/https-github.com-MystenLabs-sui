@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 const { fontFamily } = require("tailwindcss/defaultTheme");
-const colors = require('tailwindcss/colors');
+const colors = require("tailwindcss/colors");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -34,7 +34,7 @@ module.exports = {
 
       sui: {
         DEFAULT: "#6fbcf0",
-        bright: '#2A38EB',
+        bright: "#2A38EB",
         light: "#E1F3FF",
         dark: "#1F6493",
       },
@@ -82,6 +82,7 @@ module.exports = {
       boxShadow: {
         moduleOption:
           "0px 0px 29px rgba(0, 0, 0, 0.13), 0px 0px 44px rgba(0, 0, 0, 0.15), 0px 0px 0px rgba(0, 0, 0, 0.2)",
+        blurXl: "0 0 20px 0 rgba(0, 0, 0, 0.3)",
       },
       fontSize: {
         // Text sizes:
@@ -130,9 +131,18 @@ module.exports = {
         header: "68px",
       },
       transitionTimingFunction: {
-        'ease-in-out-cubic': 'cubic-bezier(0.65, 0, 0.35, 1)',
-        'ease-out-cubic': 'cubic-bezier(0.33, 1, 0.68, 1)',
-      }
+        "ease-in-out-cubic": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "ease-out-cubic": "cubic-bezier(0.33, 1, 0.68, 1)",
+      },
+      transitionDuration: {
+        400: "400ms",
+      },
+      backgroundImage: {
+        noMedia: "linear-gradient(165.96deg, #e6f5ff 9.97%, #ebecff 94.97%)",
+      },
+      rotate: {
+        135: "135deg",
+      },
     },
   },
   corePlugins: {
