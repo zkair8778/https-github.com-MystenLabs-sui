@@ -583,7 +583,7 @@
       "params": [
         {
           "name": "parent_object_id",
-          "description": "the ID of the queried parent object",
+          "description": "The ID of the queried parent object",
           "required": true,
           "schema": {
             "$ref": "#/components/schemas/ObjectID"
@@ -591,7 +591,7 @@
         },
         {
           "name": "name",
-          "description": "the Name of the dynamic field",
+          "description": "The Name of the dynamic field",
           "required": true,
           "schema": {
             "type": "string"
@@ -617,7 +617,7 @@
       "params": [
         {
           "name": "parent_object_id",
-          "description": "the ID of the parent object",
+          "description": "The ID of the parent object",
           "required": true,
           "schema": {
             "$ref": "#/components/schemas/ObjectID"
