@@ -13,6 +13,7 @@ use std::sync::Arc;
 use sui_types::coin::CoinMetadata;
 use sui_types::event::Event;
 use sui_types::gas_coin::GAS;
+use sui_types::sui_system_state::SuiSystemState;
 use tap::TapFallible;
 
 use fastcrypto::encoding::Base64;
@@ -372,6 +373,14 @@ impl RpcFullNodeReadApiServer for FullNodeApi {
         Ok(self
             .state
             .handle_committee_info_request(&CommitteeInfoRequest { epoch })
+            .map_err(|e| anyhow!("{e}"))?)
+    }
+
+    async fn get_sui_system_state(&self) -> RpcResult<SuiSystemState> {
+        Ok(self
+            .state
+            .get_sui_system_state_object()
+            .await
             .map_err(|e| anyhow!("{e}"))?)
     }
 }
