@@ -96,7 +96,6 @@ pub struct TestClusterBuilder {
     genesis_config: Option<GenesisConfig>,
     fullnode_rpc_port: Option<u16>,
     do_not_build_fullnode: bool,
-    num_validators: Option<usize>,
 }
 
 impl TestClusterBuilder {
@@ -105,7 +104,6 @@ impl TestClusterBuilder {
             genesis_config: None,
             fullnode_rpc_port: None,
             do_not_build_fullnode: false,
-            num_validators: None,
         }
     }
 
@@ -124,11 +122,6 @@ impl TestClusterBuilder {
         self
     }
 
-    pub fn with_num_validators(mut self, num: usize) -> Self {
-        self.num_validators = Some(num);
-        self
-    }
-
     pub async fn build(self) -> anyhow::Result<TestCluster> {
         let cluster = self.start_test_network_with_customized_ports().await?;
         #[cfg(msim)]
@@ -141,9 +134,7 @@ impl TestClusterBuilder {
         Ok(cluster)
     }
 
-    async fn start_test_network_with_customized_ports(
-        mut self,
-    ) -> Result<TestCluster, anyhow::Error> {
+    async fn start_test_network_with_customized_ports(self) -> Result<TestCluster, anyhow::Error> {
         // Where does wallet client connect to?
         // 1. `start_test_swarm_with_fullnodes` init the wallet to use an embedded
         //  Gateway. If `use_embedded_gateway` is true, the config remains intact.
@@ -152,7 +143,7 @@ impl TestClusterBuilder {
         // 3. Otherwise, the wallet connects to Fullnode rpc server, unless
         //   `do_not_build_fullnode` is false, in which case the wallet is connected
         //  with the initial embedded Gateway.
-        let swarm = self.start_test_swarm_with_fullnodes().await?;
+        let swarm = Self::start_test_swarm_with_fullnodes(self.genesis_config).await?;
         let working_dir = swarm.dir();
 
         let mut wallet_conf: SuiClientConfig =
@@ -191,12 +182,13 @@ impl TestClusterBuilder {
     }
 
     /// Start a Swarm and set up WalletConfig with an embedded Gateway
-    async fn start_test_swarm_with_fullnodes(&mut self) -> Result<Swarm, anyhow::Error> {
-        let mut builder: SwarmBuilder = Swarm::builder().committee_size(
-            NonZeroUsize::new(self.num_validators.unwrap_or(NUM_VALIDAOTR)).unwrap(),
-        );
+    async fn start_test_swarm_with_fullnodes(
+        genesis_config: Option<GenesisConfig>,
+    ) -> Result<Swarm, anyhow::Error> {
+        let mut builder: SwarmBuilder =
+            Swarm::builder().committee_size(NonZeroUsize::new(NUM_VALIDAOTR).unwrap());
 
-        if let Some(genesis_config) = self.genesis_config.take() {
+        if let Some(genesis_config) = genesis_config {
             builder = builder.initial_accounts_config(genesis_config);
         }
 
