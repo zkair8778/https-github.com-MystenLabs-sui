@@ -127,7 +127,7 @@ pub trait RpcReadApi {
     #[method(name = "getDynamicFieldObject")]
     async fn get_dynamic_field_object(
         &self,
-        /// the ID of the queried parent object
+        /// The ID of the queried parent object
         parent_object_id: ObjectID,
         /// The Name of the dynamic field
         name: String,
