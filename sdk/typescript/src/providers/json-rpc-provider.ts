@@ -144,6 +144,9 @@ export class JsonRpcProvider extends Provider {
       opts.socketOptions
     );
   }
+  async getFullNodeURL(): Promise<string> {
+    return this.endpoints.fullNode;
+  }
 
   async getRpcApiVersion(): Promise<RpcApiVersion | undefined> {
     if (

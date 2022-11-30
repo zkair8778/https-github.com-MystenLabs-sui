@@ -37,6 +37,10 @@ import {
 import { Provider } from './provider';
 
 export class VoidProvider extends Provider {
+    // Fullnode URL
+    async getFullNodeURL(): Promise<string | undefined> {
+      throw this.newError('getFullNodeURL');
+    }
   // API Version
   async getRpcApiVersion(): Promise<RpcApiVersion | undefined> {
     throw this.newError('getRpcApiVersion');

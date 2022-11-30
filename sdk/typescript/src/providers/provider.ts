@@ -37,6 +37,8 @@ import {
 ///////////////////////////////
 // Exported Abstracts
 export abstract class Provider {
+  abstract getFullNodeURL(): Promise<string>;
+
   // API Version
   /**
    * Fetch and cache the RPC API version number
